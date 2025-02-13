@@ -10,7 +10,7 @@ import { Minus } from 'lucide';
 
 const DEFAULT_LINE_COLOR = '#000000';
 
-interface LineSchema extends Schema {
+export interface LineSchema extends Schema {
   color: string;
 }
 
