@@ -17,7 +17,7 @@ const defaultValue = `<svg viewBox="0 0 488 600" version="1.1" xmlns="http://www
     </g>
 </svg>`;
 
-interface SVGSchema extends Schema {}
+export interface SVGSchema extends Schema {}
 
 const svgSchema: Plugin<SVGSchema> = {
   ui: (arg) => {

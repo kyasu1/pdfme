@@ -1,4 +1,4 @@
-import type { Plugin, PDFRenderProps, Schema } from '@pdfme/common';
+import { Plugin, PDFRenderProps, Schema } from '@pdfme/common';
 import { IdCard } from 'lucide';
 import { createSvgStr, isEditable, convertForPdfLayoutProps, hex2PrintingColor } from '../utils.js';
 import { DEFAULT_OPACITY } from '../constants.js';
@@ -13,25 +13,28 @@ import * as svgSchema from '../graphics/svg.js';
 import { ShapeSchema } from '../shapes/rectAndEllipse.js';
 import * as lineSchema from '../shapes/line.js';
 import * as rectAndEllipseSchema from '../shapes/rectAndEllipse.js';
-import { PDFPage } from '@pdfme/pdf-lib';
+import { BarcodeTypes } from '../barcodes/types.js';
 
 export interface CardSchema extends Schema {
   type: 'card';
   effectiveWidth: number;
   effectiveHeight: number;
-  horizontalGutter: number;
-  verticalGutter: number;
   borderWidth: number;
   borderColor: string;
   xGutter?: number;
   yGutter?: number;
   schemas: S[];
-  fields: Field[][];
+  fields: Field[];
 }
 
-type S = TextSchema | BarcodeSchema | ImageSchema | ShapeSchema | lineSchema.LineSchema;
+type S =
+  | (TextSchema & Schema)
+  | (BarcodeSchema & Schema)
+  | (ImageSchema & Schema)
+  | (ShapeSchema & Schema)
+  | (lineSchema.LineSchema & Schema)
+  | (svgSchema.SVGSchema & Schema);
 
-type FieldGroup = {};
 export type Field = {
   key: string;
   value: string;
@@ -43,7 +46,7 @@ const cardSchema: Plugin<CardSchema> = {
 
     if (!value) return;
 
-    const fields = schema.fields;
+    const fields: Field[] = schema.fields;
     const pageHeight = page.getHeight();
 
     const { position, width, height, rotate, opacity } = convertForPdfLayoutProps({
@@ -59,9 +62,9 @@ const cardSchema: Plugin<CardSchema> = {
     const xGutter = schema.xGutter ? schema.xGutter : 0;
     const yGutter = schema.yGutter ? schema.yGutter : 0;
 
-    const pages: PDFPage[] = pdfDoc.getPages();
+    const pages = pdfDoc.getPages();
 
-    for (const fieldGroup: Field[] of fields) {
+    for (const fieldGroup of fields as Field[]) {
       if (currentX + schema.width > schema.effectiveWidth) {
         currentX = 0;
         currentY += rowHeight + yGutter;
@@ -79,7 +82,9 @@ const cardSchema: Plugin<CardSchema> = {
       }
 
       for (const [key, value] of Object.entries(fieldGroup)) {
-        const fieldSchema: S = schema.schemas.find((element) => element.name === key);
+        const fieldSchema: S | undefined = schema.schemas.find(
+          (element: S) => element.name === key
+        );
 
         if (fieldSchema) {
           const newPosition = {
@@ -93,8 +98,8 @@ const cardSchema: Plugin<CardSchema> = {
             case 'text':
               await textSchema.pdf({
                 value,
-                schema: updatedSchema,
-                basePdf: schema.basePdf,
+                schema: updatedSchema as TextSchema,
+                basePdf,
                 pdfLib,
                 pdfDoc,
                 page: currentPage,
@@ -105,8 +110,8 @@ const cardSchema: Plugin<CardSchema> = {
             case 'image':
               await imageSchema.default.pdf({
                 value,
-                schema: updatedSchema,
-                basePdf: schema.basePdf,
+                schema: updatedSchema as ImageSchema,
+                basePdf,
                 pdfLib,
                 pdfDoc,
                 page: currentPage,
@@ -117,43 +122,63 @@ const cardSchema: Plugin<CardSchema> = {
             case 'svg':
               await svgSchema.default.pdf({
                 value,
-                page,
-                schema: updatedSchema,
+                schema: updatedSchema as svgSchema.SVGSchema,
+                basePdf,
+                pdfLib,
+                pdfDoc,
+                page: currentPage,
+                options,
+                _cache,
               });
             case 'line':
-              if (value === true) {
-                await lineSchema.default.pdf({
-                  schema: updatedSchema,
-                  page: currentPage,
-                  options,
-                });
-              }
+              await lineSchema.default.pdf({
+                value: '',
+                schema: updatedSchema as lineSchema.LineSchema,
+                basePdf,
+                pdfLib,
+                pdfDoc,
+                page: currentPage,
+                options,
+                _cache,
+              });
+
               break;
             case 'rect':
-              if (value === true) {
-                await rectAndEllipseSchema.rectangle.pdf({
-                  schema: updatedSchema,
-                  page: currentPage,
-                  options,
-                });
-              }
+              await rectAndEllipseSchema.rectangle.pdf({
+                value: '',
+                schema: updatedSchema as rectAndEllipseSchema.ShapeSchema,
+                basePdf,
+                pdfLib,
+                pdfDoc,
+                page: currentPage,
+                options,
+                _cache,
+              });
+
               break;
             case 'ellipse':
-              if (value === true) {
-                await rectAndEllipseSchema.ellipse.pdf({
-                  schema: updatedSchema,
-                  page: currentPage,
-                  options,
-                });
-              }
+              await rectAndEllipseSchema.ellipse.pdf({
+                value: '',
+                schema: updatedSchema as rectAndEllipseSchema.ShapeSchema,
+                basePdf,
+                pdfLib,
+                pdfDoc,
+                page: currentPage,
+                options,
+                _cache,
+              });
+
               break;
             default:
-              if (barcodes[fieldSchema.type]) {
-                await barcodes[fieldSchema.type].pdf({
+              if (barcodes[fieldSchema.type as BarcodeTypes]) {
+                await barcodes[fieldSchema.type as BarcodeTypes].pdf({
                   value,
-                  schema: updatedSchema,
+                  schema: updatedSchema as BarcodeSchema,
+                  basePdf,
+                  pdfLib,
                   pdfDoc,
                   page: currentPage,
+                  options,
                   _cache,
                 });
               }
@@ -203,8 +228,10 @@ const cardSchema: Plugin<CardSchema> = {
       // Check this document: https://pdfme.com//docs/custom-schemas#learning-how-to-create-from-pdfmeschemas-code
       rotate: 0,
 
-      horizontalGutter: 0.0,
-      verticalGutter: 0.0,
+      effectiveWidth: 210.0,
+      effectiveHeight: 297.0,
+      xGutter: 0.0,
+      yGutter: 0.0,
       borderWidth: 1.0,
       borderColor: '#999999',
       opacity: DEFAULT_OPACITY,
