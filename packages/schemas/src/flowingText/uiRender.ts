@@ -1,7 +1,7 @@
 import type * as CSS from 'csstype';
 import type { Font as FontKitFont } from 'fontkit';
 import { UIRenderProps, getDefaultFont } from '@pdfme/common';
-import type { TextSchema } from './types';
+import type { FlowingTextSchema } from './types';
 import {
   DEFAULT_FONT_SIZE,
   DEFAULT_ALIGNMENT,
@@ -56,7 +56,7 @@ const replaceUnsupportedChars = (text: string, fontKitFont: FontKitFont): string
     .join('');
 };
 
-export const uiRender = async (arg: UIRenderProps<TextSchema>) => {
+export const uiRender = async (arg: UIRenderProps<FlowingTextSchema>) => {
   const { value, schema, mode, onChange, stopEditing, tabIndex, placeholder, options, _cache } =
     arg;
   const usePlaceholder = isEditable(mode, schema) && placeholder && !value;
@@ -70,7 +70,11 @@ export const uiRender = async (arg: UIRenderProps<TextSchema>) => {
   };
   const font = options?.font || getDefaultFont();
   const fontKitFont = await getFontKitFont(schema.fontName, font, _cache);
-  const textBlock = buildStyledTextContainer(arg, fontKitFont, usePlaceholder ? placeholder : value);
+  const textBlock = buildStyledTextContainer(
+    arg,
+    fontKitFont,
+    usePlaceholder ? placeholder : value
+  );
 
   const processedText = replaceUnsupportedChars(value, fontKitFont);
 
@@ -150,7 +154,11 @@ export const uiRender = async (arg: UIRenderProps<TextSchema>) => {
   }
 };
 
-export const buildStyledTextContainer = (arg: UIRenderProps<TextSchema>, fontKitFont: FontKitFont, value: string) => {
+export const buildStyledTextContainer = (
+  arg: UIRenderProps<FlowingTextSchema>,
+  fontKitFont: FontKitFont,
+  value: string
+) => {
   const { schema, rootElement, mode, options, _cache } = arg;
   const font = options?.font || getDefaultFont();
 

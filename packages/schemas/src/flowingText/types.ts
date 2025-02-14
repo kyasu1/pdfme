@@ -11,14 +11,12 @@ export type FontWidthCalcValues = {
   characterSpacing: number;
   boxWidthInPt: number;
 };
-export interface TextSchema extends Schema {
+export interface FlowingTextSchema extends Schema {
   fontName?: string;
   alignment: ALIGNMENT;
   verticalAlignment: VERTICAL_ALIGNMENT;
   fontSize: number;
   lineHeight: number;
-  strikethrough?: boolean;
-  underline?: boolean;
   characterSpacing: number;
   dynamicFontSize?: {
     min: number;

@@ -1,7 +1,7 @@
 import { PDFFont, PDFDocument } from '@pdfme/pdf-lib';
 import type { PDFPage } from '@pdfme/pdf-lib';
 import type { Font as FontKitFont } from 'fontkit';
-import type { TextSchema } from './types';
+import type { FlowingTextSchema } from './types';
 import {
   PDFRenderProps,
   ColorType,
@@ -71,7 +71,7 @@ const getFontProp = ({
   value: string;
   fontKitFont: FontKitFont;
   colorType?: ColorType;
-  schema: TextSchema;
+  schema: FlowingTextSchema;
 }) => {
   const fontSize = schema.dynamicFontSize
     ? calculateDynamicFontSize({ textSchema: schema, fontKitFont, value })
@@ -88,7 +88,7 @@ const getFontProp = ({
   };
 };
 
-export const pdfRender = async (arg: PDFRenderProps<TextSchema>) => {
+export const pdfRender = async (arg: PDFRenderProps<FlowingTextSchema>) => {
   const { value, pdfDoc, pdfLib, options, schema, _cache } = arg;
   let { page } = arg;
   if (!value) return;
@@ -112,14 +112,13 @@ export const pdfRender = async (arg: PDFRenderProps<TextSchema>) => {
   const {
     width,
     height,
-    rotate,
     position: { x, y },
     opacity,
   } = convertForPdfLayoutProps({ schema, pageHeight, applyRotateTranslate: false });
 
   if (schema.backgroundColor) {
     const color = hex2PrintingColor(schema.backgroundColor, colorType);
-    page.drawRectangle({ x, y, width, height, rotate, color });
+    page.drawRectangle({ x, y, width, height, color });
   }
 
   const firstLineTextHeight = heightOfFontAtSize(fontKitFont, fontSize);
@@ -209,40 +208,6 @@ export const pdfRender = async (arg: PDFRenderProps<TextSchema>) => {
 
       let yLine = pageHeight - mm2pt(yTop) - yOffset - rowYOffset;
 
-      // draw strikethrough
-      if (schema.strikethrough && textWidth > 0) {
-        const _x = xLine + textWidth + 1;
-        const _y = yLine + textHeight / 3;
-        pages[pageCount].drawLine({
-          start: rotatePoint({ x: xLine, y: _y }, pivotPoint, rotate.angle),
-          end: rotatePoint({ x: _x, y: _y }, pivotPoint, rotate.angle),
-          thickness: (1 / 12) * fontSize,
-          color: color,
-          opacity,
-        });
-      }
-
-      // draw underline
-      if (schema.underline && textWidth > 0) {
-        const _x = xLine + textWidth + 1;
-        const _y = yLine - textHeight / 12;
-        pages[pageCount].drawLine({
-          start: rotatePoint({ x: xLine, y: _y }, pivotPoint, rotate.angle),
-          end: rotatePoint({ x: _x, y: _y }, pivotPoint, rotate.angle),
-          thickness: (1 / 12) * fontSize,
-          color: color,
-          opacity,
-        });
-      }
-
-      if (rotate.angle !== 0) {
-        // As we draw each line individually from different points, we must translate each lines position
-        // relative to the UI rotation pivot point. see comments in convertForPdfLayoutProps() for more info.
-        const rotatedPoint = rotatePoint({ x: xLine, y: yLine }, pivotPoint, rotate.angle);
-        xLine = rotatedPoint.x;
-        yLine = rotatedPoint.y;
-      }
-
       let spacing = characterSpacing;
       if (alignment === 'justify' && line.slice(-1) !== '\n') {
         // if alignment is `justify` but the end of line is not newline, then adjust the spacing
@@ -255,7 +220,6 @@ export const pdfRender = async (arg: PDFRenderProps<TextSchema>) => {
       pages[pageCount].drawText(trimmed, {
         x: xLine,
         y: yLine,
-        rotate,
         size: fontSize,
         color,
         lineHeight: lineHeight * fontSize,

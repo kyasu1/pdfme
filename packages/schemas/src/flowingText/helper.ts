@@ -11,7 +11,7 @@ import {
   DEFAULT_FONT_NAME,
 } from '@pdfme/common';
 import { Buffer } from 'buffer';
-import type { TextSchema, FontWidthCalcValues } from './types';
+import type { FlowingTextSchema, FontWidthCalcValues } from './types';
 import {
   DEFAULT_FONT_SIZE,
   DEFAULT_CHARACTER_SPACING,
@@ -229,7 +229,7 @@ export const calculateDynamicFontSize = ({
   value,
   startingFontSize,
 }: {
-  textSchema: TextSchema;
+  textSchema: FlowingTextSchema;
   fontKitFont: FontKitFont;
   value: string;
   startingFontSize?: number | undefined;

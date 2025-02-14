@@ -5,7 +5,7 @@ import {
   PropPanelSchema,
   getFallbackFontName,
 } from '@pdfme/common';
-import type { TextSchema } from './types';
+import type { FlowingTextSchema } from './types';
 import {
   DEFAULT_FONT_SIZE,
   DEFAULT_ALIGNMENT,
@@ -48,7 +48,7 @@ const UseDynamicFontSize = (props: PropPanelWidgetProps) => {
   rootElement.appendChild(label);
 };
 
-export const propPanel: PropPanel<TextSchema> = {
+export const propPanel: PropPanel<FlowingTextSchema> = {
   schema: ({ options, activeSchema, i18n }) => {
     const font = options.font || { [DEFAULT_FONT_NAME]: { data: '', fallback: true } };
     const fontNames = Object.keys(font);
@@ -158,7 +158,7 @@ export const propPanel: PropPanel<TextSchema> = {
   widgets: { UseDynamicFontSize },
   defaultSchema: {
     name: '',
-    type: 'text',
+    type: 'flowingText',
     content: 'Type Something...',
     position: { x: 0, y: 0 },
     width: 45,
@@ -176,7 +176,5 @@ export const propPanel: PropPanel<TextSchema> = {
     fontName: undefined,
     backgroundColor: '',
     opacity: DEFAULT_OPACITY,
-    strikethrough: false,
-    underline: false,
   },
 };
