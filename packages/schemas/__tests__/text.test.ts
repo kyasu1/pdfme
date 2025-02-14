@@ -249,7 +249,7 @@ describe('calculateDynamicFontSize with Default font', () => {
     textSchema.dynamicFontSize = { min: 10, max: 30, fit: 'vertical' };
     const value = 'test with a length string\n and a new line';
     const startingFontSize = 18;
-    const result = calculateDynamicFontSize({textSchema, fontKitFont, value, startingFontSize});
+    const result = calculateDynamicFontSize({ textSchema, fontKitFont, value, startingFontSize });
 
     expect(result).toBe(19.25);
   });
@@ -259,7 +259,7 @@ describe('calculateDynamicFontSize with Default font', () => {
     textSchema.dynamicFontSize = { min: 10, max: 30, fit: 'horizontal' };
     const value = 'test with a length string\n and a new line';
     const startingFontSize = 36;
-    const result = calculateDynamicFontSize({textSchema, fontKitFont, value, startingFontSize});
+    const result = calculateDynamicFontSize({ textSchema, fontKitFont, value, startingFontSize });
 
     expect(result).toBe(11.25);
   });
@@ -277,9 +277,8 @@ describe('calculateDynamicFontSize with Default font', () => {
 describe('calculateDynamicFontSize with Custom font', () => {
   let fontKitFont: FontKitFont;
   beforeAll(async () => {
-    fontKitFont = await getFontKitFont('SauceHanSansJP',  getSampleFont(), new Map());
+    fontKitFont = await getFontKitFont('SauceHanSansJP', getSampleFont(), new Map());
   });
-
 
   it('should return smaller font size when dynamicFontSizeSetting is provided with horizontal fit', async () => {
     const textSchema = getTextSchema();

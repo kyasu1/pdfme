@@ -1,4 +1,3 @@
-import * as fontkit from 'fontkit';
 import type { Font as FontKitFont } from 'fontkit';
 import {
   b64toUint8Array,
@@ -117,7 +116,7 @@ export const getFontKitFont = async (
   const fntNm = fontName || getFallbackFontName(font);
   const cacheKey = getCacheKey(fntNm);
   if (_cache.has(cacheKey)) {
-    return _cache.get(cacheKey) as fontkit.Font;
+    return _cache.get(cacheKey) as FontKitFont;
   }
 
   const currentFont = font[fntNm] || getFallbackFont(font) || getDefaultFont()[DEFAULT_FONT_NAME];
@@ -128,9 +127,10 @@ export const getFontKitFont = async (
       : b64toUint8Array(fontData);
   }
 
-  const fontKitFont = fontkit.create(
+  const { create } = await import('fontkit');
+  const fontKitFont = create(
     fontData instanceof Buffer ? fontData : Buffer.from(fontData as ArrayBuffer)
-  ) as fontkit.Font;
+  ) as FontKitFont;
   _cache.set(cacheKey, fontKitFont);
 
   return fontKitFont;
@@ -352,7 +352,7 @@ export const splitTextToSize = (arg: {
   characterSpacing: number;
   boxWidthInPt: number;
   fontSize: number;
-  fontKitFont: fontkit.Font;
+  fontKitFont: FontKitFont;
 }) => {
   const { value, characterSpacing, fontSize, fontKitFont, boxWidthInPt } = arg;
   const fontWidthCalcValues: FontWidthCalcValues = {
