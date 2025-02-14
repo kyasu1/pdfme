@@ -12,7 +12,7 @@ import time from './date/time';
 import select from './select/index';
 import radioGroup from './radioGroup/index';
 import checkbox from './checkbox/index';
-
+import qrCode from './qrCode/index';
 const builtInPlugins = { Text: text };
 
 export {
@@ -33,4 +33,5 @@ export {
   select,
   radioGroup,
   checkbox,
+  qrCode,
 };

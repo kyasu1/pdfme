@@ -17,6 +17,7 @@ import {
   select,
   checkbox,
   radioGroup,
+  qrCode,
 } from '@pdfme/schemas';
 import plugins from './plugins';
 
@@ -114,7 +115,7 @@ export const getPlugins = () => {
     Image: image,
     SVG: svg,
     Signature: plugins.signature,
-    QR: barcodes.qrcode,
+    // QR: barcodes.qrcode,
     DateTime: dateTime,
     Date: date,
     Time: time,
@@ -131,6 +132,7 @@ export const getPlugins = () => {
     // UPCA: barcodes.upca,
     // UPCE: barcodes.upce,
     // GS1DataMatrix: barcodes.gs1datamatrix,
+    NodeQRCode: qrCode,
   };
 };
 

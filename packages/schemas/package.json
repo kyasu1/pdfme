@@ -54,13 +54,15 @@
     "date-fns": "^4.1.0",
     "fast-xml-parser": "^4.3.2",
     "fontkit": "^2.0.2",
-    "lucide": "^0.460.0"
+    "lucide": "^0.460.0",
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
     "@pdfme/common": "file:../common",
     "@types/bwip-js": "^3.2.1",
     "@types/fontkit": "^2.0.4",
     "@types/pngjs": "^6.0.2",
+    "@types/qrcode": "^1.5.5",
     "jsqr": "^1.4.0",
     "pngjs": "^7.0.0"
   },
