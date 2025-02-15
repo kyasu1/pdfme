@@ -6,11 +6,11 @@ import type { FlowingTextSchema } from './types';
 import { TextCursorInput } from 'lucide';
 import { createSvgStr } from '../utils.js';
 
-const textSchema: Plugin<FlowingTextSchema> = {
+const flowingTextSchema: Plugin<FlowingTextSchema> = {
   pdf: pdfRender,
   ui: uiRender,
   propPanel,
   icon: createSvgStr(TextCursorInput),
 };
 
-export default textSchema;
+export default flowingTextSchema;

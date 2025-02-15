@@ -18,9 +18,9 @@ import {
   DEFAULT_DYNAMIC_FIT,
   DEFAULT_DYNAMIC_MIN_FONT_SIZE,
   DEFAULT_DYNAMIC_MAX_FONT_SIZE,
-} from './constants.js';
-import { DEFAULT_OPACITY, HEX_COLOR_PATTERN } from '../constants.js';
-import { getExtraFormatterSchema } from './extraFormatter';
+} from '../text/constants.js';
+import { DEFAULT_OPACITY, HEX_COLOR_PATTERN } from '../constants';
+import { getExtraFormatterSchema } from '../text/extraFormatter';
 
 const UseDynamicFontSize = (props: PropPanelWidgetProps) => {
   const { rootElement, changeSchemas, activeSchema, i18n } = props;

@@ -20,7 +20,7 @@ import {
   DEFAULT_LINE_HEIGHT,
   DEFAULT_CHARACTER_SPACING,
   DEFAULT_FONT_COLOR,
-} from './constants.js';
+} from '../text/constants.js';
 import {
   calculateDynamicFontSize,
   heightOfFontAtSize,
@@ -28,7 +28,7 @@ import {
   getFontKitFont,
   widthOfTextAtSize,
   splitTextToSize,
-} from './helper.js';
+} from '../text/helper.js';
 import { convertForPdfLayoutProps, rotatePoint, hex2PrintingColor } from '../utils.js';
 
 const embedAndGetFontObj = async (arg: {

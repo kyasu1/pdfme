@@ -13,13 +13,13 @@ import {
   DEFAULT_CHARACTER_SPACING,
   DEFAULT_FONT_COLOR,
   PLACEHOLDER_FONT_COLOR,
-} from './constants.js';
+} from '../text/constants.js';
 import {
   calculateDynamicFontSize,
   getFontKitFont,
   getBrowserVerticalFontAdjustments,
   isFirefox,
-} from './helper.js';
+} from '../text/helper.js';
 import { isEditable } from '../utils.js';
 
 const replaceUnsupportedChars = (text: string, fontKitFont: FontKitFont): string => {
