@@ -89,8 +89,7 @@ const getFontProp = ({
 };
 
 export const pdfRender = async (arg: PDFRenderProps<FlowingTextSchema>) => {
-  const { value, pdfDoc, pdfLib, options, schema, _cache } = arg;
-  let { page } = arg;
+  const { value, page, pdfDoc, pdfLib, options, schema, _cache } = arg;
   if (!value) return;
 
   const { font = getDefaultFont(), colorType } = options;
@@ -148,20 +147,25 @@ export const pdfRender = async (arg: PDFRenderProps<FlowingTextSchema>) => {
     }
   }
 
+  // basePdfからマージン情報を取得する方法がわからないので、とりあえず決め打ち
+  const topMarginMm = 20;
+  const bottomMarginMm = 20;
+  const pageHeightMm = 297;
+
   let indexOffset = 0;
   let pageCounter = 0;
-  let yTop = schema.position.y;
-  let yBottom = schema.position.y + schema.height;
+  let yTopMm = schema.position.y;
+  let yBottomMm = schema.position.y + schema.height;
 
   let linesSplittedPages: string[][] = lines.reduce(
     (acc: string[][], current: string, index: number) => {
       const rowYOffset = lineHeight * fontSize * (index - indexOffset);
-      let yLine = pageHeight - mm2pt(yTop) - yOffset - rowYOffset;
-      if (yLine <= pageHeight - mm2pt(yBottom)) {
+      let yLine = pageHeight - mm2pt(yTopMm) - yOffset - rowYOffset;
+      if (yLine <= pageHeight - mm2pt(yBottomMm)) {
         acc[++pageCounter] = [current];
         indexOffset = index;
-        yTop = 20;
-        yBottom = 20 + 257;
+        yTopMm = topMarginMm;
+        yBottomMm = pageHeightMm - bottomMarginMm;
         return acc;
       } else {
         if (acc[pageCounter]) {
@@ -175,22 +179,46 @@ export const pdfRender = async (arg: PDFRenderProps<FlowingTextSchema>) => {
     []
   );
 
-  const pivotPoint = { x: x + width / 2, y: pageHeight - mm2pt(schema.position.y) - height / 2 };
   const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
 
   let pages: PDFPage[] = pdfDoc.getPages();
-  linesSplittedPages.forEach((linesInPage, pageCount) => {
+  linesSplittedPages.forEach((linesInPage, pageCount: number) => {
     if (pageCount !== 0) {
       if (!pages[pageCount]) {
         pages.push(pdfDoc.addPage());
       }
+      // Sample page header and footer
+      pages[pageCount].drawRectangle({
+        x: mm2pt(10.0),
+        y: pageHeight - mm2pt(20.0),
+        width: mm2pt(190.0),
+        height: mm2pt(5.0),
+        // borderColor: '#000000',
+        borderWidth: 1,
+      });
+      pages[pageCount].drawRectangle({
+        x: mm2pt(10.0),
+        y: mm2pt(10.0),
+        width: mm2pt(190.0),
+        height: mm2pt(5.0),
+        // borderColor: '#000000',
+        borderWidth: 1,
+      });
+    } else {
+      pages[pageCount].drawRectangle({
+        x: mm2pt(10.0),
+        y: mm2pt(10.0),
+        width: mm2pt(190.0),
+        height: mm2pt(5.0),
+        // borderColor: '#000000',
+        borderWidth: 1,
+      });
     }
-    let yTop = pageCount === 0 ? schema.position.y : 20;
+    const yTopMm = pageCount === 0 ? schema.position.y : topMarginMm;
 
     linesInPage.forEach((line, rowIndex) => {
       const trimmed = line.replace('\n', '');
       const textWidth = widthOfTextAtSize(trimmed, fontKitFont, fontSize, characterSpacing);
-      const textHeight = heightOfFontAtSize(fontKitFont, fontSize);
       const rowYOffset = lineHeight * fontSize * rowIndex;
 
       // Adobe Acrobat Reader shows an error if `drawText` is called with an empty text
@@ -206,7 +234,7 @@ export const pdfRender = async (arg: PDFRenderProps<FlowingTextSchema>) => {
         xLine += width - textWidth;
       }
 
-      let yLine = pageHeight - mm2pt(yTop) - yOffset - rowYOffset;
+      let yLine = pageHeight - mm2pt(yTopMm) - yOffset - rowYOffset;
 
       let spacing = characterSpacing;
       if (alignment === 'justify' && line.slice(-1) !== '\n') {
